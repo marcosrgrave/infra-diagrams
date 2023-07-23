@@ -15,32 +15,29 @@ class PrivateSubnet(CustomCluster):
         super().__init__(self.label, self.direction)
         with self:
             self.database = DatabaseProd()
-            self.database_prod = self.database.rds_prod
-
             self.storage = S3Storage()
-            self.s3_bucket = self.storage.assets
 
-            self.resident()
-            self.internal()
-            self.worker()
-            self.manager()
+            self.__resident()
+            self.__internal()
+            self.__worker()
+            self.__manager()
 
-    def manager(self) -> None:
+    def __manager(self) -> None:
         self.manager = ManagerServices()
-        self.manager.instances >> self.s3_bucket
-        self.manager.instances >> self.database_prod
+        self.manager.instances >> self.storage.assets
+        self.manager.instances >> self.database.rds_prod
 
-    def worker(self) -> None:
+    def __worker(self) -> None:
         self.worker = WorkersServices()
-        self.worker.instances >> self.s3_bucket
-        self.worker.instances >> self.database_prod
+        self.worker.instances >> self.storage.assets
+        self.worker.instances >> self.database.rds_prod
 
-    def internal(self) -> None:
+    def __internal(self) -> None:
         self.internal = GeneralInternalServices()
-        self.internal.instances >> self.s3_bucket
-        self.internal.instances >> self.database_prod
+        self.internal.instances >> self.storage.assets
+        self.internal.instances >> self.database.rds_prod
 
-    def resident(self) -> None:
+    def __resident(self) -> None:
         self.resident = ResidentServices()
-        self.resident.instances >> self.s3_bucket
-        self.resident.instances >> self.database_prod
+        self.resident.instances >> self.storage.assets
+        self.resident.instances >> self.database.rds_prod
